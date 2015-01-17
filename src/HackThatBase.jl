@@ -1,4 +1,6 @@
 module HackThatBase
+export @whisper
+exclusions = Dict()
 
 function get_exprs(str)
     res = Expr[]
@@ -38,39 +40,46 @@ function body_decls(body)
         try
             s != nothing && push!(res,s)
         catch
-            @show s
             break    
         end
     end
     res
 end
-get_names(fname) = fname |> file_exprs |> find_names
-
+get_names(fname) = fname |> file_exprs |> body_decls
 
 macro whisper(wname, wpath)
-    rexp = quote
-    baremodule $wname
-       eval(M,x) = Core.eval(M,x)
-       eval(x) = Core.eval(t, x)
+    wsname = string(wname); wspath = string(wpath)
+    wspath = joinpath(JULIA_HOME, "../../base", string(wspath,endswith(wspath,".jl") ? "":".jl"))
 
-       #importall Core.Intrinsics
-       #importall Base.Operators
+    exclusions = get!(HackThatBase.exclusions, wspath, HackThatBase.get_names(wspath))
 
-       import Base: vcat, include, call, Base, names, filter, !, !=, in, getindex, length, ceil
-       import Base: Bottom, Any, assert, zeros
-
-       batchimp(M, exc) = begin
-           for n in filter(x->!(x in exc), names(eval(M), true, true)) eval(Expr(:import, M, n)) end
-       end
-
-       batchimp(:Base, [:__init__, :eval, Main.excl])
-
-       include($wpath)
+    function batchimp(M, exc)
+        for n in filter(x->!(x in exc), names(eval(M), true, true))
+            eval(Expr(:import, M, n))
+        end
     end
-    end # quote
 
+    batchimp(:Base, [:__init__, :eval, exclusions...])
+
+    importexprs =  map(x->Expr(:import, :Base, x), setdiff(names(Base,true,true), exclusions))
+
+    rexp = Expr(:toplevel, Expr(:module, false, esc(wname),
+        quote
+        eval(M,x) = Core.eval(M,x)
+        eval(x) = Core.eval($(esc(wname)), x)
+
+        #importall Core.Intrinsics
+        #importall Base.Operators
+
+        import Base: vcat, include, call, Base, names, filter,
+               !, !=, in, getindex, length, ceil, Bottom, Any, assert, zeros
+
+        $importexprs
+        include($wspath)
+
+        end)) # quote
     # macro needs to be toplevel, and strip the surrounding block
-    Expr(:toplevel, rexp.args[2])
+    #Expr(:toplevel, rexp.args[2])
 end
 
 end # module HackThatBase
