@@ -1,5 +1,5 @@
 module HackThatBase
-export @whisper
+export @hack
 exclusions = Dict()
 
 # return all expressions in given stream
@@ -47,7 +47,7 @@ function body_decls(body)
 end
 get_names(fname) = body_decls(file_exprs(fname))
 
-macro whisper(wname, wpath)
+macro hack(wname, wpath)
     wsname = string(wname); wspath = string(wpath)
     wspath = joinpath(JULIA_HOME, "../../base", string(wspath,endswith(wspath,".jl") ? "":".jl"))
 
