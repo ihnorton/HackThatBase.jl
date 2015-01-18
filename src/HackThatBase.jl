@@ -1,5 +1,6 @@
 module HackThatBase
-export @hack
+export @hack, lminfo
+
 exclusions = Dict()
 
 # return all expressions in given stream
@@ -77,6 +78,12 @@ macro hack(wname, wpath)
                         include($wspath)
                     )))
                 ))
+end
+
+# helper function, returns args for typeinf
+function lminfo(f::Function)
+    m = Base._methods(f, (), -1)[1]
+    return (Base.func_for_method(m[3], (), m[2]), m[1], m[2])
 end
 
 end # module HackThatBase
