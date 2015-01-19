@@ -1,5 +1,9 @@
 module HackThatBase
-export @hack, lminfo
+export @hack, lminfo, showast
+
+# Note: to use this with inference, must disable the
+# cache checking, see `!is(tf,())`. Otherwise the
+# cached version will be used.
 
 exclusions = Dict()
 
@@ -81,9 +85,12 @@ macro hack(wname, wpath)
 end
 
 # helper function, returns args for typeinf
-function lminfo(f::Function)
-    m = Base._methods(f, (), -1)[1]
-    return (Base.func_for_method(m[3], (), m[2]), m[1], m[2])
+function lminfo(f::Function, args)
+    m = Base._methods(f, args, -1)[1]
+    linfo = Base.func_for_method(m[3], args, m[2])
+    return (linfo, m[1], m[2])
 end
+
+showast(linfo, ast) = ccall(:jl_uncompress_ast, Any, (Any,Any), linfo, ast)
 
 end # module HackThatBase
