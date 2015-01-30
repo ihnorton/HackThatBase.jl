@@ -89,10 +89,16 @@ macro hack(wname, wpath)
                 ))
 end
 
+if VERSION < v"0.4"
+    func_for_method(m::Method, tt, env) = m.func.code
+else
+    func_for_method = Base.func_for_method
+end
+
 # helper function, returns args for typeinf
 function lminfo(f::Function, args)
     m = Base._methods(f, args, -1)[1]
-    linfo = Base.func_for_method(m[3], args, m[2])
+    linfo = func_for_method(m[3], args, m[2])
     return (linfo, m[1], m[2])
 end
 
