@@ -1,6 +1,10 @@
 module HackThatBase
 export @hack, lminfo, showast
 
+const isdist = isdir(joinpath(JULIA_HOME, "../share"))
+const basepath = isdist ? joinpath(JULIA_HOME, "../share/julia/base") :
+                          joinpath(JULIA_HOME, "../../base")
+
 # Note: to use this with inference, must disable the
 # cache checking, see `!is(tf,())`. Otherwise the
 # cached version will be used.
@@ -43,7 +47,7 @@ end
 
 # get all top-level declaration symbols
 function body_decls(body)
-    res = []
+    res = Any[]
     for ex in body
         s = decl_name(ex)
         s != nothing && push!(res,s)
@@ -54,7 +58,8 @@ get_names(fname) = body_decls(file_exprs(fname))
 
 macro hack(wname, wpath)
     wsname = string(wname); wspath = string(wpath)
-    wspath = joinpath(JULIA_HOME, "../../base", string(wspath,endswith(wspath,".jl") ? "":".jl"))
+
+    wspath = joinpath(basepath, string(wspath,endswith(wspath,".jl") ? "":".jl"))
 
     # don't import these names. importing __init__ appears to deadlock the REPL
     exclusions = [:__init__, :eval]
