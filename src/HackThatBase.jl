@@ -68,7 +68,7 @@ macro hack(wname, wpath)
     # don't import any top-level declarations found in the given file,
     # because those imports will conflict with Base versions
     exclusions = get!(HackThatBase.exclusions, wspath,
-                      [exclusions, HackThatBase.get_names(wspath)])
+                      [exclusions; HackThatBase.get_names(wspath)])
 
     # set up imports
     importnames = setdiff(names(Base,true,true), exclusions)
@@ -89,7 +89,7 @@ macro hack(wname, wpath)
                 ))
 end
 
-if VERSION < v"0.4"
+if VERSION < v"0.4-"
     func_for_method(m::Method, tt, env) = m.func.code
 else
     func_for_method = Base.func_for_method
