@@ -1,8 +1,11 @@
 Rebuilding the Julia system image is time-consuming, leading
 to long round-trip times when modifying code in base. This
-tool aims to reduce the turn-around for testing such changes,
-in particular to inference.jl (the most compilation-heavy part
-of base).
+tool aims to reduce the turn-around time for testing changes
+to `inference.jl`, the most compilation-heavy part of base.
+
+This should work (but has not been tested) with other modular
+parts of base, although it will almost certainly not work
+with the REPL code.
 
 ##Usage##
 
@@ -21,17 +24,25 @@ execute the modified code:
 W.typeinf(args...)
 ```
 
+To view the resulting inferred AST, use HackThatBase.showast.
+
+Some explanation:
+- `typeinf` is the main entrypoint to type inference
+- `lminfo` is a helper function to extract the method signature
+   and other arguments to `typeinf`.
+
 (on my system, the above steps take ~15 seconds to complete,
 as compared to >2 minutes to rebuild the second stage of sysimg)
 
 Notes:
 
 - to use this with inference, you *must* disable
-  typinf caching. See `!is(tf,())` in `builtin_tfunction`.
+  typinf caching. See `!is(tf,nothing)` in
+  `inference.jl::builtin_tfunction`.
   Otherwise the sysimg-cached version will be used, and
   no changes will be observed.
 
 - imports are limited in the test environment.
-  To inspect variables, push to an array in Main.
-  e.g. `push!(Main.foo, A)`
+  To inspect variables, push to an array in `Main`.
+  e.g. somewhere in `inference.jl`, do `push!(Main.foo, A)`
   (where `foo = []` at the REPL before running)
