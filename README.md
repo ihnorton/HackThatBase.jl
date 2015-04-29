@@ -13,7 +13,7 @@ with the REPL code.
 using HackThatBase
 @hack W inference
 args = lminfo(function, args)
-W.typeinf(args...)
+W.typeinf_uncached(args...)
 ```
 
 After modifying `inference.jl`, simply re-run these steps to
@@ -21,13 +21,13 @@ execute the modified code:
 
 ```
 @hack W inference
-W.typeinf(args...)
+W.typeinf_uncached(args...)
 ```
 
 To view the resulting inferred AST, use HackThatBase.showast.
 
 Some explanation:
-- `typeinf` is the main entrypoint to type inference
+- `typeinf_uncached` is the (un-cached) entrypoint to type inference
 - `lminfo` is a helper function to extract the method signature
    and other arguments to `typeinf`.
 
@@ -35,12 +35,6 @@ Some explanation:
 as compared to >2 minutes to rebuild the second stage of sysimg)
 
 Notes:
-
-- to use this with inference, you *must* disable
-  typinf caching. See `!is(tf,nothing)` in
-  `inference.jl::builtin_tfunction`.
-  Otherwise the sysimg-cached version will be used, and
-  no changes will be observed.
 
 - imports are limited in the test environment.
   To inspect variables, push to an array in `Main`.
