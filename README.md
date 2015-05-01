@@ -45,3 +45,24 @@ Notes:
   To inspect variables, push to an array in `Main`.
   e.g. somewhere in `inference.jl`, do `push!(Main.foo, A)`
   (where `foo = []` at the REPL before running)
+
+###Tips on usage with Debug.jl###
+
+`HackThatBase` can be used in conjunction with the [Debug](https://github.com/toivoh/Debug.jl) package.
+Because inference is used during the compilation of functions (including those called by inference), it's
+advised that you first complete one run through `showast` before beginning debugging. For example,
+let's say you've edited `inference.jl` and inserted some breakpoints. Here's how you should proceed:
+
+```jl
+shell> git stash       # temporarily go back to the unedited version of inference.jl
+julia> using HackThatBase
+julia> func(x,y) = x + y
+julia> args = lminfo(func, (Int,Float64))   # (Int, Float64) are the types of x and y
+julia> @hack W inference
+julia> result = W.typeinf_uncached(args...)
+julia> showast(args[1], result[1])
+shell> git stash pop   # restore your edited version of inference.jl
+julia> result = W.typeinf_uncached(args...)
+```
+
+At this point your breakpoints will be triggered.
