@@ -62,6 +62,7 @@ julia> @hack W inference
 julia> result = W.typeinf_uncached(args...)
 julia> showast(args[1], result[1])
 shell> git stash pop   # restore your edited version of inference.jl
+julia> @hack W inference
 julia> result = W.typeinf_uncached(args...)
 ```
 
