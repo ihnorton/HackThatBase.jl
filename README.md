@@ -9,22 +9,27 @@ with the REPL code.
 
 ##Usage##
 
-```
+```jl
 using HackThatBase
+func(x,y) = x + y
+args = lminfo(func, (Int,Float64))   # (Int, Float64) are the types of x and y
 @hack W inference
-args = lminfo(function, args)
-W.typeinf_uncached(args...)
+result = W.typeinf_uncached(args...)
 ```
 
 After modifying `inference.jl`, simply re-run these steps to
 execute the modified code:
 
-```
+```jl
 @hack W inference
-W.typeinf_uncached(args...)
+result = W.typeinf_uncached(args...)
 ```
 
-To view the resulting inferred AST, use HackThatBase.showast.
+To view the resulting inferred AST, use
+
+```jl
+showast(args[1], result[1])
+```
 
 Some explanation:
 - `typeinf_uncached` is the (un-cached) entrypoint to type inference
