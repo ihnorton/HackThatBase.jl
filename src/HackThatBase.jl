@@ -13,7 +13,7 @@ function get_exprs(str)
     lpos = 1
     while lpos < length(str)
         ex,lpos = parse(str, lpos; greedy=true, raise=false)
-        push!(res, ex)
+        isa(ex,Expr) && push!(res, ex)
     end
     return res
 end
