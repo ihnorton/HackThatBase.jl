@@ -58,7 +58,7 @@ macro hack(wname, wpath)
     wspath = joinpath(basepath, string(wspath,endswith(wspath,".jl") ? "":".jl"))
 
     # don't import these names. importing __init__ appears to deadlock the REPL
-    exclusions = [:__init__, :eval]
+    exclusions = [:__init__, :eval, :func_for_method]
 
     body_exprs = HackThatBase.file_exprs(wspath)
     body_decls = HackThatBase.body_decls(body_exprs)
