@@ -60,11 +60,14 @@ macro hack(wname, wpath)
     # don't import these names. importing __init__ appears to deadlock the REPL
     exclusions = [:__init__, :eval]
 
+    body_exprs = HackThatBase.file_exprs(wspath)
+    body_decls = HackThatBase.body_decls(body_exprs)
+
     # build and cache full list of exclusions:
     # don't import any top-level declarations found in the given file,
     # because those imports will conflict with Base versions
     exclusions = get!(HackThatBase.exclusions, wspath,
-                      [exclusions; HackThatBase.get_names(wspath)])
+                      [exclusions; body_decls])
 
     # set up imports
     importnames = setdiff(names(Base,true,true), exclusions)
@@ -77,12 +80,12 @@ macro hack(wname, wpath)
                     Expr(:toplevel, Expr(:import, :Base, :getindex)),
                     Expr(:toplevel, importexprs...),
 
-                    esc(:(
-                        eval(M,x) = Core.eval(M,x),
-                        eval(x) = Core.eval($wname, x),
-                        include($wspath)
-                    )))
-                ))
+                    esc(quote
+                            eval(M,x) = Core.eval(M,x)
+                            eval(x) = Core.eval($wname, x)
+                        end),
+                    Expr(:toplevel, [esc(x) for x in body_exprs]...)
+                )))
 end
 
 # helper function, returns args for typeinf
