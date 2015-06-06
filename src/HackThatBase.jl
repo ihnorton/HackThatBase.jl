@@ -71,7 +71,7 @@ macro hack(wname, wpath)
 
     # set up imports
     importnames = setdiff(names(Base,true,true), exclusions)
-    importexprs =  map(x->Expr(:import, :Base, x), setdiff(names(Base,true,true), exclusions))
+    importexprs =  map(x->Expr(:import, :Base, x), [setdiff(names(Base,true,true), exclusions); names(Core.Intrinsics)])
 
     # build module Expr. Quoting is a pain for module and import statements,
     # so build most of it directly.
