@@ -1,4 +1,7 @@
 module HackThatBase
+
+using Compat
+
 export @hack, lminfo, showast
 
 const isdist = isdir(joinpath(JULIA_HOME, "../share"))
@@ -18,7 +21,7 @@ function get_exprs(str)
     return res
 end
 # return all expressions in given file
-file_exprs(fname) = get_exprs(readall(open(fname,"r")))
+file_exprs(fname) = get_exprs(@compat readstring(open(fname,"r")))
 
 # returns the declaration name for a given expression
 # TODO: make sure all top-level expression heads are handled
@@ -91,8 +94,14 @@ end
 # helper function, returns args for typeinf
 function lminfo(f::Function, args)
     m = Base._methods(f, args, -1)[1]
-    linfo = Core.Inference.func_for_method(m[3], args, m[2])
+    linfo = getfunc(m[3], args, m[2])
     return (linfo, m[1], m[2])
+end
+
+if VERSION < v"0.5.0-dev"
+    getfunc(m, tt, env) = Core.Inference.func_for_method(m, tt, env)
+else
+    getfunc(m, tt, env) = m.func
 end
 
 showast(linfo, ast) = ccall(:jl_uncompress_ast, Any, (Any,Any), linfo, ast)
