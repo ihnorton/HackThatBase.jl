@@ -101,7 +101,7 @@ end
 if VERSION < v"0.5.0-dev"
     getfunc(m, tt, env) = Core.Inference.func_for_method(m, tt, env)
 else
-    getfunc(m, tt, env) = m.func
+    getfunc(m, tt, env) = Core.Inference.func_for_method_checked(m, tt)
 end
 
 showast(linfo, ast) = ccall(:jl_uncompress_ast, Any, (Any,Any), linfo, ast)
