@@ -14,7 +14,7 @@ using HackThatBase
 func(x,y) = x + y
 args = lminfo(func, (Int,Float64))   # (Int, Float64) are the types of x and y
 @hack W inference
-result = W.typeinf_uncached(args...)
+result = run_inference(W, args)
 ```
 
 After modifying `inference.jl`, simply re-run these steps to
@@ -22,19 +22,17 @@ execute the modified code:
 
 ```jl
 @hack W inference
-result = W.typeinf_uncached(args...)
+result = run_inference(W, args)
 ```
 
 To view the resulting inferred AST, use
 
 ```jl
-showast(args[1], result[1])
+showast(args[1], result[2])
 ```
 
-Some explanation:
-- `typeinf_uncached` is the (un-cached) entrypoint to type inference
-- `lminfo` is a helper function to extract the method signature
-   and other arguments to `typeinf`.
+`lminfo` is a helper function to extract the method signature
+and other arguments to `typeinf`.
 
 (on my system, the above steps take ~15 seconds to complete,
 as compared to >2 minutes to rebuild the second stage of sysimg)
@@ -59,11 +57,11 @@ julia> using HackThatBase
 julia> func(x,y) = x + y
 julia> args = lminfo(func, (Int,Float64))   # (Int, Float64) are the types of x and y
 julia> @hack W inference
-julia> result = W.typeinf_uncached(args...)
+julia> result = run_inference(W, args)
 julia> showast(args[1], result[1])
 shell> git stash pop   # restore your edited version of inference.jl
 julia> @hack W inference
-julia> result = W.typeinf_uncached(args...)
+julia> result = run_inference(W, args)
 ```
 
 At this point your breakpoints will be triggered.

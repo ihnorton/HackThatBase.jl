@@ -1,8 +1,6 @@
 module HackThatBase
 
-using Compat
-
-export @hack, lminfo, showast
+export @hack, lminfo, showast, run_inference
 
 const isdist = isdir(joinpath(JULIA_HOME, "../share"))
 const basepath = isdist ? joinpath(JULIA_HOME, "../share/julia/base") :
@@ -21,7 +19,7 @@ function get_exprs(str)
     return res
 end
 # return all expressions in given file
-file_exprs(fname) = get_exprs(@compat readstring(open(fname,"r")))
+file_exprs(fname) = get_exprs(readstring(open(fname,"r")))
 
 # returns the declaration name for a given expression
 # TODO: make sure all top-level expression heads are handled
@@ -93,17 +91,17 @@ end
 
 # helper function, returns args for typeinf
 function lminfo(f::Function, args)
-    m = Base._methods(f, args, -1)[1]
+    m = _methods(f, args)[1]
     linfo = getfunc(m[3], args, m[2])
     return (linfo, m[1], m[2])
 end
 
-if VERSION < v"0.5.0-dev"
-    getfunc(m, tt, env) = Core.Inference.func_for_method(m, tt, env)
-else
-    getfunc(m, tt, env) = Core.Inference.func_for_method_checked(m, tt)
-end
+getfunc(m, tt, env) = Core.Inference.func_for_method_checked(m, tt)
+
+_methods(f, args) = Base._methods(f, args, -1, typemax(UInt))
 
 showast(linfo, ast) = ccall(:jl_uncompress_ast, Any, (Any,Any), linfo, ast)
+
+run_inference(W::Module, args) = W.typeinf_code(args..., true, false, W.InferenceParams(ccall(:jl_get_tls_world_age, UInt, ())))
 
 end # module HackThatBase
