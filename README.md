@@ -7,7 +7,7 @@ This should work (but has not been tested) with other modular
 parts of base, although it will almost certainly not work
 with the REPL code.
 
-##Usage##
+## Usage
 
 ```jl
 using HackThatBase
@@ -44,7 +44,7 @@ Notes:
   e.g. somewhere in `inference.jl`, do `push!(Main.foo, A)`
   (where `foo = []` at the REPL before running)
 
-###Tips on usage with Debug.jl###
+### Tips on usage with Debug.jl
 
 `HackThatBase` can be used in conjunction with the [Debug](https://github.com/toivoh/Debug.jl) package.
 Because inference is used during the compilation of functions (including those called by inference), it's
