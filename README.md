@@ -3,9 +3,16 @@ to long round-trip times when modifying code in base. This
 tool aims to reduce the turn-around time for testing changes
 to `inference.jl`, the most compilation-heavy part of base.
 
-This should work (but has not been tested) with other modular
+This package should work (but has not been tested) with other modular
 parts of base, although it will almost certainly not work
 with the REPL code.
+
+## Alternatives
+
+One can open a Julia REPL, navigate to `base/`, and then execute
+`include("coreimg.jl")`. This will replace the inference machinery
+in the running session. You can perform this multiple times as
+you insert and remove debugging statements in `inference.jl`.
 
 ## Usage
 
